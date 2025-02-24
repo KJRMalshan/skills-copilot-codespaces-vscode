@@ -1,36 +1,29 @@
 // create web server
-const express = require('express');
-const app = express();
+const http = require('http')
+const fs = require('fs')
+const port = 3000
 
-const PORT = 3000;
+const server = http.createServer((req, res) => {
+  console.log(req.url)
+  if (req.url === '/comments') {
+    fs.readFile('./comments.html', 'utf8', (err, data) => {
+      if (err) {
+        console.error(err)
+        res.writeHead(500)
+        res.end()
+        return
+      }
+      res.writeHead(200, {
+        'Content-Type': 'text/html'
+      })
+      res.end(data)
+    })
+  } else {
+    res.writeHead(404)
+    res.end()
+  }
+})
 
-// create a route
-
-app.get('/', (req, res) => {
-    res.send('Welcome to the homepage');
-});
-
-app.get('/comments', (req, res) => {
-    res.send('Welcome to the comments page');
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-// run the server with node comments.js
-
-// handle graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
-        console.log('HTTP server closed');
-    });
-});
-
-process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing HTTP server');
-    server.close(() => {
-        console.log('HTTP server closed');
-    });
-});
+server.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`)
+})
